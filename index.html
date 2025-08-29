@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hindi Formative Assignment Grade Entry</title>
+  <style>
+    body {
+      font-family: "Trebuchet MS", sans-serif;
+      background: linear-gradient(to bottom, #e0f7fa, #f1f8e9);
+      margin: 0;
+      padding: 20px;
+    }
+    .school-header {
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #1b5e20;
+      background: #a5d6a7;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .sub-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      padding: 10px;
+    }
+    .sub-header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      color: #2e7d32;
+      background: #c8e6c9;
+      padding: 10px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .teacher-info {
+      font-size: 1rem;
+      color: #1565c0;
+      font-weight: bold;
+      text-align: right;
+    }
+    h2 {
+      text-align: center;
+      color: #1565c0;
+      margin-top: 40px;
+      background: #bbdefb;
+      padding: 10px;
+      border-radius: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 25px 0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      background: #fff;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background: #4caf50;
+      color: white;
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+    }
+    tr:nth-child(even) {background: #f9fbe7;}
+    tr:nth-child(odd) {background: #ffffff;}
+    tr:hover {
+      background: #ffe0b2;
+      transition: 0.3s;
+    }
+    input[type="text"], input[type="number"] {
+      padding: 6px;
+      width: 90%;
+      border: 1px solid #90a4ae;
+      border-radius: 6px;
+      text-align: center;
+      background: #f1f8e9;
+    }
+    input[type="text"]:focus, input[type="number"]:focus {
+      outline: none;
+      border-color: #4caf50;
+      background: #e8f5e9;
+    }
+    .pass { color: green; font-weight: bold; }
+    .fail { color: red; font-weight: bold; }
+    .absent { color: orange; font-weight: bold; }
+
+    /* Button Styles */
+    .submit-btn, .reset-btn {
+      display: block;
+      margin: 20px auto;
+      padding: 12px 30px;
+      font-size: 1.2rem;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: 0.3s;
+    }
+    .submit-btn { background: #1565c0; }
+    .submit-btn:hover { background: #0d47a1; }
+    .reset-btn { background: #e53935; }
+    .reset-btn:hover { background: #b71c1c; }
+
+    .locked-message {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: darkgreen;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- School Header -->
+  <div class="school-header">
+    ST. JOSEPHS BOYS HIGH SCHOOL, MARIAPURAM, KADAPA
+  </div>
+
+  <!-- Sub Header with Title and Teacher Info -->
+  <div class="sub-header">
+    <h1>📚 Hindi Subject - Formative Assignment Grade Entry</h1>
+    <div class="teacher-info">
+      Teacher Name: SRI S. M. RAHIMAN <br>
+      School Asst., Hindi
+    </div>
+  </div>
+
+  <div id="tables-container"></div> <!-- container for tables -->
+
+  <!-- Buttons -->
+  <button class="submit-btn" onclick="submitForm()">Submit</button>
+  <button class="reset-btn" onclick="resetForm()">Reset</button>
+  <div id="lock-message"></div>
+
+  <script>
+    function createTable(className, section, studentCount) {
+      let table = document.createElement("table");
+
+      let caption = document.createElement("h2");
+      caption.textContent = `Class ${className} - Section ${section}`;
+      document.getElementById("tables-container").appendChild(caption);
+
+      // Header row
+      table.innerHTML = `
+        <tr>
+          <th>Roll No</th>
+          <th>Section</th>
+          <th>Name</th>
+          <th>Marks (Max 50)</th>
+          <th>Result</th>
+          <th>Grade</th>
+        </tr>`;
+
+      // Rows for students
+      for (let i = 1; i <= studentCount; i++) {
+        let row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${i}</td>
+          <td>${section}</td>
+          <td><input type="text" placeholder="Enter Name"></td>
+          <td><input type="number" min="0" max="50"></td>
+          <td class="result"></td>
+          <td class="grade"></td>`;
+        
+        // attach event to marks input
+        let marksInput = row.querySelector("input[type='number']");
+        marksInput.addEventListener("input", function() {
+          evaluate(marksInput);
+        });
+
+        table.appendChild(row);
+      }
+
+      document.getElementById("tables-container").appendChild(table);
+    }
+
+    function evaluate(input) {
+      let marks = input.value.trim();
+      let row = input.closest("tr");
+      let resultCell = row.querySelector(".result");
+      let gradeCell = row.querySelector(".grade");
+
+      if (marks === "00") {
+        resultCell.textContent = "Absent";
+        resultCell.className = "result absent";
+        gradeCell.textContent = "-";
+        return;
+      }
+
+      let score = parseInt(marks);
+      if (isNaN(score)) {
+        resultCell.textContent = "";
+        gradeCell.textContent = "";
+        return;
+      }
+
+      if (score >= 17) {
+        resultCell.textContent = "Pass";
+        resultCell.className = "result pass";
+      } else {
+        resultCell.textContent = "Fail";
+        resultCell.className = "result fail";
+      }
+
+      // Grade assignment
+      if (score >= 45) gradeCell.textContent = "A+";
+      else if (score >= 40) gradeCell.textContent = "A";
+      else if (score >= 35) gradeCell.textContent = "B+";
+      else if (score >= 30) gradeCell.textContent = "B";
+      else if (score >= 25) gradeCell.textContent = "C";
+      else if (score >= 17) gradeCell.textContent = "D";
+      else gradeCell.textContent = "F";
+    }
+
+    function submitForm() {
+      document.querySelectorAll("input").forEach(input => {
+        input.disabled = true;
+      });
+      document.querySelector(".submit-btn").disabled = true;
+      document.getElementById("lock-message").innerHTML = 
+        "<div class='locked-message'>✅ Form Submitted Successfully! All entries are now locked.</div>";
+    }
+
+    function resetForm() {
+      document.querySelectorAll("input").forEach(input => {
+        input.disabled = false;
+      });
+      document.querySelector(".submit-btn").disabled = false;
+      document.getElementById("lock-message").innerHTML = "";
+    }
+
+    // Generate tables
+    createTable(9, 'A', 38);
+    createTable(9, 'B', 38);
+    createTable(10, 'A', 28);
+    createTable(10, 'B', 28);
+  </script>
+
+</body>
+</html>
+
