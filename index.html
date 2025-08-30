@@ -95,7 +95,7 @@
     .absent { color: orange; font-weight: bold; }
 
     /* Button Styles */
-    .submit-btn, .reset-btn {
+    .btn {
       display: block;
       margin: 20px auto;
       padding: 12px 30px;
@@ -107,8 +107,10 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
       transition: 0.3s;
     }
-    .submit-btn { background: #1565c0; }
-    .submit-btn:hover { background: #0d47a1; }
+    .next-btn { background: #1565c0; }
+    .next-btn:hover { background: #0d47a1; }
+    .submit-btn { background: #2e7d32; }
+    .submit-btn:hover { background: #1b5e20; }
     .reset-btn { background: #e53935; }
     .reset-btn:hover { background: #b71c1c; }
 
@@ -118,6 +120,13 @@
       font-weight: bold;
       color: darkgreen;
       margin-top: 20px;
+    }
+
+    .table-section {
+      display: none;
+    }
+    .active-section {
+      display: block;
     }
   </style>
 </head>
@@ -139,18 +148,24 @@
 
   <div id="tables-container"></div> <!-- container for tables -->
 
-  <!-- Buttons -->
-  <button class="submit-btn" onclick="submitForm()">Submit</button>
-  <button class="reset-btn" onclick="resetForm()">Reset</button>
   <div id="lock-message"></div>
 
   <script>
+    let currentSection = 0; 
+    let sections = [];
+
+    // Password Protection
+    let teacherPassword = "teacher123"; // default password
+
     function createTable(className, section, studentCount) {
-      let table = document.createElement("table");
+      let container = document.createElement("div");
+      container.className = "table-section";
 
       let caption = document.createElement("h2");
       caption.textContent = `Class ${className} - Section ${section}`;
-      document.getElementById("tables-container").appendChild(caption);
+      container.appendChild(caption);
+
+      let table = document.createElement("table");
 
       // Header row
       table.innerHTML = `
@@ -183,7 +198,48 @@
         table.appendChild(row);
       }
 
-      document.getElementById("tables-container").appendChild(table);
+      container.appendChild(table);
+
+      // Navigation button
+      let btnContainer = document.createElement("div");
+
+      if (sections.length < 3) { // for first 3 tables, show Next button
+        let nextBtn = document.createElement("button");
+        nextBtn.textContent = "Next ➡️";
+        nextBtn.className = "btn next-btn";
+        nextBtn.onclick = function() { nextSection(); };
+        btnContainer.appendChild(nextBtn);
+      } else { // last table
+        let submitBtn = document.createElement("button");
+        submitBtn.textContent = "Submit";
+        submitBtn.className = "btn submit-btn";
+        submitBtn.onclick = submitForm;
+        btnContainer.appendChild(submitBtn);
+
+        let resetBtn = document.createElement("button");
+        resetBtn.textContent = "Reset";
+        resetBtn.className = "btn reset-btn";
+        resetBtn.onclick = resetForm;
+        btnContainer.appendChild(resetBtn);
+      }
+
+      container.appendChild(btnContainer);
+      document.getElementById("tables-container").appendChild(container);
+      sections.push(container);
+    }
+
+    function showSection(index) {
+      sections.forEach((sec, i) => {
+        sec.classList.remove("active-section");
+        if (i === index) sec.classList.add("active-section");
+      });
+    }
+
+    function nextSection() {
+      if (currentSection < sections.length - 1) {
+        currentSection++;
+        showSection(currentSection);
+      }
     }
 
     function evaluate(input) {
@@ -234,11 +290,18 @@
     }
 
     function resetForm() {
-      document.querySelectorAll("input").forEach(input => {
-        input.disabled = false;
-      });
-      document.querySelector(".submit-btn").disabled = false;
-      document.getElementById("lock-message").innerHTML = "";
+      let pwd = prompt("Enter teacher password to reset:");
+      if (pwd === teacherPassword) {
+        document.querySelectorAll("input").forEach(input => {
+          input.disabled = false;
+          input.value = "";
+        });
+        document.querySelector(".submit-btn").disabled = false;
+        document.getElementById("lock-message").innerHTML = "";
+        alert("Form unlocked. You can edit again.");
+      } else {
+        alert("Wrong password. Reset denied.");
+      }
     }
 
     // Generate tables
@@ -246,8 +309,10 @@
     createTable(9, 'B', 38);
     createTable(10, 'A', 28);
     createTable(10, 'B', 28);
+
+    // Show first section
+    showSection(0);
   </script>
 
 </body>
 </html>
-
