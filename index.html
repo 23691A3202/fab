@@ -113,6 +113,8 @@
     .submit-btn:hover { background: #1b5e20; }
     .reset-btn { background: #e53935; }
     .reset-btn:hover { background: #b71c1c; }
+    .back-btn { background: #8e24aa; }
+    .back-btn:hover { background: #6a1b9a; }
 
     .locked-message {
       text-align: center;
@@ -187,8 +189,8 @@
           <td><input type="text" placeholder="Enter Name"></td>
           <td><input type="number" min="0" max="50"></td>
           <td class="result"></td>
-          <td class="grade"></td>`;
-        
+          <td class="grade"></td>`;        
+
         // attach event to marks input
         let marksInput = row.querySelector("input[type='number']");
         marksInput.addEventListener("input", function() {
@@ -200,8 +202,16 @@
 
       container.appendChild(table);
 
-      // Navigation button
+      // Navigation buttons
       let btnContainer = document.createElement("div");
+
+      if (sections.length > 0) { // If there are previous sections, show Back button
+        let backBtn = document.createElement("button");
+        backBtn.textContent = "⬅️ Back";
+        backBtn.className = "btn back-btn";
+        backBtn.onclick = function() { previousSection(); };
+        btnContainer.appendChild(backBtn);
+      }
 
       if (sections.length < 3) { // for first 3 tables, show Next button
         let nextBtn = document.createElement("button");
@@ -238,6 +248,13 @@
     function nextSection() {
       if (currentSection < sections.length - 1) {
         currentSection++;
+        showSection(currentSection);
+      }
+    }
+
+    function previousSection() {
+      if (currentSection > 0) {
+        currentSection--;
         showSection(currentSection);
       }
     }
